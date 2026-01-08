@@ -141,20 +141,20 @@ namespace Reser
                 return;
             }
 
-            Dd = (decimal)Math.Pow(4 * (double)Fd / 3.1415, 0.5);
-            R = Dd / 4;
-
-            if (kn > 0)
-            {
-                Shesi = 1 / kn * (decimal)Math.Pow((double)R, 1 / 6);
-                kwd = Ld / ((decimal)Math.Pow((double)Shesi, 2) * R * (decimal)Math.Pow((double)Fd, 2));
-            }
-            else { kwd = 0; }
-
-            kwr = kr / ((decimal)19.62 * (decimal)Math.Pow((double)Fd, 2));
-
             try
             {
+                Dd = (decimal)Math.Pow(4 * (double)Fd / 3.1415, 0.5);
+                R = Dd / 4;
+
+                if (kn > 0)
+                {
+                    Shesi = 1 / kn * (decimal)Math.Pow((double)R, 1 / 6);
+                    kwd = Ld / ((decimal)Math.Pow((double)Shesi, 2) * R * (decimal)Math.Pow((double)Fd, 2));
+                }
+                else { kwd = 0; }
+
+                kwr = kr / ((decimal)19.62 * (decimal)Math.Pow((double)Fd, 2));
+
                 Qst = Int11(T, IK, UT, UQST);
                 Qd = Qst;
                 Qr = 0;
@@ -201,7 +201,7 @@ namespace Reser
                     Table[count, 5] = Hwr;
                     Table[count, 6] = Z;
                     Table[count, 7] = Hd;
-                    Debug.WriteLine("T= {0}, Z= {1}, Hd= {2}", T, Z, Hd);
+                    //Debug.WriteLine("T= {0}, Z= {1}, Hd= {2}", T, Z, Hd);
                 }
 
                 // Строим графики
@@ -286,14 +286,7 @@ namespace Reser
                 formsPlot_Q.Plot.Legend.BackgroundColor = semitransparent;
                 formsPlot_Q.Plot.ShowLegend(ScottPlot.Alignment.LowerRight, ScottPlot.Orientation.Vertical);
                 formsPlot_Q.Refresh();
-            }
-            catch
-            {
-                MessageBox.Show("Ошибка расчета. Проверьте корректность введенных данных",
-                    "Внимание!",
-                    MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
-            }
-
+            
             First = Table[0, 6];
             Second = Table[0, 6];
             // Определяем минимальный и максимальный уровень
@@ -370,6 +363,14 @@ namespace Reser
                 Hd2.Text = "Второй: " + Math.Round(Second, 2);
             }
             else { Hd1.Text = "     -"; Hd2.Text = "     -"; }
+
+            }
+            catch
+            {
+                MessageBox.Show("Ошибка расчета. Проверьте корректность введенных данных",
+                    "Внимание!",
+                    MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+            }
         }
 
         private decimal Int11(decimal D, int N, decimal[] X, decimal[] Y)
@@ -403,6 +404,7 @@ namespace Reser
                 !decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
             {
                 result = defaultValue;
+                throw new ArgumentNullException();
             }
 
             return result;

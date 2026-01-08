@@ -173,6 +173,7 @@
             Fdt.Name = "Fdt";
             Fdt.Size = new Size(57, 27);
             Fdt.TabIndex = 2;
+            Fdt.TextAlign = HorizontalAlignment.Right;
             Fdt.TextChanged += Fd_TextChanged;
             // 
             // label4
@@ -199,6 +200,7 @@
             Ldt.Name = "Ldt";
             Ldt.Size = new Size(57, 27);
             Ldt.TabIndex = 1;
+            Ldt.TextAlign = HorizontalAlignment.Right;
             Ldt.TextChanged += Ld_TextChanged;
             // 
             // label1
@@ -232,6 +234,7 @@
             krt.Name = "krt";
             krt.Size = new Size(57, 27);
             krt.TabIndex = 5;
+            krt.TextAlign = HorizontalAlignment.Right;
             krt.TextChanged += kr_TextChanged;
             // 
             // label10
@@ -249,6 +252,7 @@
             knt.Name = "knt";
             knt.Size = new Size(57, 27);
             knt.TabIndex = 4;
+            knt.TextAlign = HorizontalAlignment.Right;
             knt.TextChanged += kn_TextChanged;
             // 
             // label6
@@ -275,6 +279,7 @@
             Frt.Name = "Frt";
             Frt.Size = new Size(57, 27);
             Frt.TabIndex = 3;
+            Frt.TextAlign = HorizontalAlignment.Right;
             Frt.TextChanged += Fr_TextChanged;
             // 
             // label8
@@ -316,6 +321,7 @@
             Trast.Name = "Trast";
             Trast.Size = new Size(57, 27);
             Trast.TabIndex = 7;
+            Trast.TextAlign = HorizontalAlignment.Right;
             Trast.TextChanged += Tras_TextChanged;
             // 
             // label9
@@ -342,6 +348,7 @@
             dtt.Name = "dtt";
             dtt.Size = new Size(57, 27);
             dtt.TabIndex = 6;
+            dtt.TextAlign = HorizontalAlignment.Right;
             dtt.TextChanged += dt_TextChanged;
             // 
             // label12
