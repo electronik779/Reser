@@ -16,7 +16,7 @@
 
 ## Для Windows
 
-Установка не требуется. Для Windows x64 скачайте файл / файлы из раздела Releases ([Reser, ReserK, ResUst для Windows x64](https://github.com/electronik779/SurgeTanks/releases/tag/2025.1)) в любую удобную для вас папку и запустите.
+Установка не требуется. Для Windows x64 скачайте "свежий" релиз [Windows-x64-Reser.zip](https://github.com/electronik779/Reser/releases), распакуйте в любую удобную для вас папку и запустите исполняемый файл (Reser.exe).
 
 ## Для остальных ОС
 
