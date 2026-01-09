@@ -1,7 +1,6 @@
 name: Build and Release Win64
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - 'v*' # Запуск релиза при создании тега (напр. v1.0.0)
