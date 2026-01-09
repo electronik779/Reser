@@ -48,8 +48,6 @@
             groupBox2 = new GroupBox();
             krt = new TextBox();
             label10 = new Label();
-            knt = new TextBox();
-            label6 = new Label();
             label7 = new Label();
             Frt = new TextBox();
             label8 = new Label();
@@ -73,6 +71,8 @@
             Hd1 = new Label();
             label15 = new Label();
             label13 = new Label();
+            knt = new TextBox();
+            label6 = new Label();
             toolStrip.SuspendLayout();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
@@ -145,6 +145,8 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(knt);
+            groupBox1.Controls.Add(label6);
             groupBox1.Controls.Add(label3);
             groupBox1.Controls.Add(Fdt);
             groupBox1.Controls.Add(label4);
@@ -153,7 +155,7 @@
             groupBox1.Controls.Add(label1);
             groupBox1.Location = new Point(12, 30);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(241, 105);
+            groupBox1.Size = new Size(241, 168);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             groupBox1.Text = "Деривация";
@@ -216,21 +218,19 @@
             // 
             groupBox2.Controls.Add(krt);
             groupBox2.Controls.Add(label10);
-            groupBox2.Controls.Add(knt);
-            groupBox2.Controls.Add(label6);
             groupBox2.Controls.Add(label7);
             groupBox2.Controls.Add(Frt);
             groupBox2.Controls.Add(label8);
-            groupBox2.Location = new Point(12, 141);
+            groupBox2.Location = new Point(12, 204);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(241, 210);
+            groupBox2.Size = new Size(241, 147);
             groupBox2.TabIndex = 2;
             groupBox2.TabStop = false;
             groupBox2.Text = "Резервуар";
             // 
             // krt
             // 
-            krt.Location = new Point(145, 155);
+            krt.Location = new Point(145, 100);
             krt.Name = "krt";
             krt.Size = new Size(57, 27);
             krt.TabIndex = 5;
@@ -240,34 +240,16 @@
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(6, 122);
+            label10.Location = new Point(6, 67);
             label10.Name = "label10";
             label10.Size = new Size(133, 60);
             label10.TabIndex = 6;
             label10.Text = "Коэффициент\r\nдополнительного\r\nсопротивления ζ\r\n";
             // 
-            // knt
-            // 
-            knt.Location = new Point(145, 84);
-            knt.Name = "knt";
-            knt.Size = new Size(57, 27);
-            knt.TabIndex = 4;
-            knt.TextAlign = HorizontalAlignment.Right;
-            knt.TextChanged += kn_TextChanged;
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Location = new Point(6, 71);
-            label6.Name = "label6";
-            label6.Size = new Size(128, 40);
-            label6.TabIndex = 3;
-            label6.Text = "Коэффициент\r\nшероховатости n";
-            // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(208, 36);
+            label7.Location = new Point(208, 34);
             label7.Name = "label7";
             label7.Size = new Size(26, 20);
             label7.TabIndex = 2;
@@ -275,7 +257,7 @@
             // 
             // Frt
             // 
-            Frt.Location = new Point(145, 33);
+            Frt.Location = new Point(145, 31);
             Frt.Name = "Frt";
             Frt.Size = new Size(57, 27);
             Frt.TabIndex = 3;
@@ -285,7 +267,7 @@
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(6, 36);
+            label8.Location = new Point(6, 34);
             label8.Name = "label8";
             label8.Size = new Size(93, 20);
             label8.TabIndex = 0;
@@ -488,6 +470,23 @@
             label13.TabIndex = 0;
             label13.Text = "Нд (макс.), м";
             // 
+            // knt
+            // 
+            knt.Location = new Point(145, 119);
+            knt.Name = "knt";
+            knt.Size = new Size(57, 27);
+            knt.TabIndex = 7;
+            knt.TextAlign = HorizontalAlignment.Right;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(6, 106);
+            label6.Name = "label6";
+            label6.Size = new Size(128, 40);
+            label6.TabIndex = 6;
+            label6.Text = "Коэффициент\r\nшероховатости n";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -541,8 +540,6 @@
         private TextBox Fdt;
         private Label label4;
         private GroupBox groupBox2;
-        private TextBox knt;
-        private Label label6;
         private Label label7;
         private TextBox Frt;
         private Label label8;
@@ -568,5 +565,7 @@
         private Label Hd1;
         private Label label15;
         private Label label13;
+        private TextBox knt;
+        private Label label6;
     }
 }

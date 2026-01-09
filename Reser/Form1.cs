@@ -476,15 +476,15 @@ namespace Reser
                     File.Delete(filename);
                 }
 
-                List<string> block1 = new List<string>();
-                List<string> block2 = new List<string>();
-                List<string> block3 = new List<string>();
-                List<string> block4 = new List<string>();
+                List<string>? block1 = new List<string>();
+                List<string>? block2 = new List<string>();
+                List<string>? block3 = new List<string>();
+                List<string>? block4 = new List<string>();
 
                 block1.Add(Ldt.Text);
                 block1.Add(Fdt.Text);
+                block1.Add(knt.Text);
                 block2.Add(Frt.Text);
-                block2.Add(knt.Text);
                 block2.Add(krt.Text);
 
                 for (int i = 0; i < 6; i++)
@@ -529,18 +529,18 @@ namespace Reser
                     }
                 }
 
-                List<string> block1 = blocks.ElementAtOrDefault(0);
-                List<string> block2 = blocks.ElementAtOrDefault(1);
-                List<string> block3 = blocks.ElementAtOrDefault(2);
-                List<string> block4 = blocks.ElementAtOrDefault(3);
+                List<string>? block1 = blocks.ElementAtOrDefault(0);
+                List<string>? block2 = blocks.ElementAtOrDefault(1);
+                List<string>? block3 = blocks.ElementAtOrDefault(2);
+                List<string>? block4 = blocks.ElementAtOrDefault(3);
 
                 try
                 {
                     Ldt.Text = block1?.ElementAtOrDefault(0) ?? string.Empty;
                     Fdt.Text = block1?.ElementAtOrDefault(1) ?? string.Empty;
+                    knt.Text = block1?.ElementAtOrDefault(2) ?? string.Empty;
                     Frt.Text = block2?.ElementAtOrDefault(0) ?? string.Empty;
-                    knt.Text = block2?.ElementAtOrDefault(1) ?? string.Empty;
-                    krt.Text = block2?.ElementAtOrDefault(2) ?? string.Empty;
+                    krt.Text = block2?.ElementAtOrDefault(1) ?? string.Empty;
 
                     for (int i = 0; i < 6; i++)
                     {
