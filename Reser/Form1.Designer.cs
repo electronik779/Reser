@@ -39,6 +39,8 @@
             saveResultsButton = new ToolStripButton();
             helpButton = new ToolStripButton();
             groupBox1 = new GroupBox();
+            knt = new TextBox();
+            label6 = new Label();
             label3 = new Label();
             Fdt = new TextBox();
             label4 = new Label();
@@ -65,14 +67,15 @@
             formsPlot_L = new ScottPlot.WinForms.FormsPlot();
             formsPlot_Q = new ScottPlot.WinForms.FormsPlot();
             groupBox5 = new GroupBox();
+            Hd_min = new Label();
+            Hd_max = new Label();
+            label17 = new Label();
             Zmin = new Label();
             Zmax = new Label();
             Hd2 = new Label();
             Hd1 = new Label();
             label15 = new Label();
             label13 = new Label();
-            knt = new TextBox();
-            label6 = new Label();
             toolStrip.SuspendLayout();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
@@ -159,6 +162,23 @@
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             groupBox1.Text = "Деривация";
+            // 
+            // knt
+            // 
+            knt.Location = new Point(145, 119);
+            knt.Name = "knt";
+            knt.Size = new Size(57, 27);
+            knt.TabIndex = 7;
+            knt.TextAlign = HorizontalAlignment.Right;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(6, 106);
+            label6.Name = "label6";
+            label6.Size = new Size(128, 40);
+            label6.TabIndex = 6;
+            label6.Text = "Коэффициент\r\nшероховатости n";
             // 
             // label3
             // 
@@ -349,7 +369,7 @@
             groupBox4.Controls.Add(label16);
             groupBox4.Location = new Point(12, 468);
             groupBox4.Name = "groupBox4";
-            groupBox4.Size = new Size(520, 107);
+            groupBox4.Size = new Size(472, 107);
             groupBox4.TabIndex = 4;
             groupBox4.TabStop = false;
             groupBox4.Text = "Закон изменения расхода";
@@ -359,7 +379,7 @@
             dataGridView_discharge.AllowUserToAddRows = false;
             dataGridView_discharge.AllowUserToDeleteRows = false;
             dataGridView_discharge.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView_discharge.Location = new Point(145, 36);
+            dataGridView_discharge.Location = new Point(101, 36);
             dataGridView_discharge.Name = "dataGridView_discharge";
             dataGridView_discharge.RowHeadersWidth = 51;
             dataGridView_discharge.Size = new Size(366, 61);
@@ -401,23 +421,54 @@
             // 
             // groupBox5
             // 
+            groupBox5.Controls.Add(Hd_min);
+            groupBox5.Controls.Add(Hd_max);
+            groupBox5.Controls.Add(label17);
             groupBox5.Controls.Add(Zmin);
             groupBox5.Controls.Add(Zmax);
             groupBox5.Controls.Add(Hd2);
             groupBox5.Controls.Add(Hd1);
             groupBox5.Controls.Add(label15);
             groupBox5.Controls.Add(label13);
-            groupBox5.Location = new Point(538, 468);
+            groupBox5.Location = new Point(490, 468);
             groupBox5.Name = "groupBox5";
-            groupBox5.Size = new Size(232, 107);
+            groupBox5.Size = new Size(284, 107);
             groupBox5.TabIndex = 7;
             groupBox5.TabStop = false;
             groupBox5.Text = "Экстремумы";
             // 
+            // Hd_min
+            // 
+            Hd_min.AutoSize = true;
+            Hd_min.Location = new Point(190, 77);
+            Hd_min.Name = "Hd_min";
+            Hd_min.Size = new Size(39, 20);
+            Hd_min.TabIndex = 8;
+            Hd_min.Text = "      -";
+            // 
+            // Hd_max
+            // 
+            Hd_max.AutoSize = true;
+            Hd_max.Location = new Point(190, 54);
+            Hd_max.Name = "Hd_max";
+            Hd_max.Size = new Size(39, 20);
+            Hd_max.TabIndex = 7;
+            Hd_max.Text = "      -";
+            // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            label17.Location = new Point(197, 23);
+            label17.Name = "label17";
+            label17.Size = new Size(49, 20);
+            label17.TabIndex = 6;
+            label17.Text = "Hд, м";
+            // 
             // Zmin
             // 
             Zmin.AutoSize = true;
-            Zmin.Location = new Point(119, 77);
+            Zmin.Location = new Point(100, 77);
             Zmin.Name = "Zmin";
             Zmin.Size = new Size(39, 20);
             Zmin.TabIndex = 5;
@@ -426,7 +477,7 @@
             // Zmax
             // 
             Zmax.AutoSize = true;
-            Zmax.Location = new Point(119, 54);
+            Zmax.Location = new Point(100, 54);
             Zmax.Name = "Zmax";
             Zmax.Size = new Size(39, 20);
             Zmax.TabIndex = 4;
@@ -456,9 +507,9 @@
             label15.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             label15.Location = new Point(119, 23);
             label15.Name = "label15";
-            label15.Size = new Size(114, 20);
+            label15.Size = new Size(38, 20);
             label15.TabIndex = 1;
-            label15.Text = "Z (уровень), м";
+            label15.Text = "Z, м";
             // 
             // label13
             // 
@@ -466,26 +517,9 @@
             label13.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             label13.Location = new Point(6, 23);
             label13.Name = "label13";
-            label13.Size = new Size(104, 20);
+            label13.Size = new Size(100, 20);
             label13.TabIndex = 0;
-            label13.Text = "Нд (макс.), м";
-            // 
-            // knt
-            // 
-            knt.Location = new Point(145, 119);
-            knt.Name = "knt";
-            knt.Size = new Size(57, 27);
-            knt.TabIndex = 7;
-            knt.TextAlign = HorizontalAlignment.Right;
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Location = new Point(6, 106);
-            label6.Name = "label6";
-            label6.Size = new Size(128, 40);
-            label6.TabIndex = 6;
-            label6.Text = "Коэффициент\r\nшероховатости n";
+            label13.Text = "Нд (макс), м";
             // 
             // Form1
             // 
@@ -567,5 +601,8 @@
         private Label label13;
         private TextBox knt;
         private Label label6;
+        private Label Hd_min;
+        private Label Hd_max;
+        private Label label17;
     }
 }
