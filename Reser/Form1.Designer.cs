@@ -75,7 +75,7 @@
             Hd2 = new Label();
             Hd1 = new Label();
             label15 = new Label();
-            label13 = new Label();
+            Hd_extrem = new Label();
             toolStrip.SuspendLayout();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
@@ -429,7 +429,7 @@
             groupBox5.Controls.Add(Hd2);
             groupBox5.Controls.Add(Hd1);
             groupBox5.Controls.Add(label15);
-            groupBox5.Controls.Add(label13);
+            groupBox5.Controls.Add(Hd_extrem);
             groupBox5.Location = new Point(490, 468);
             groupBox5.Name = "groupBox5";
             groupBox5.Size = new Size(284, 107);
@@ -511,15 +511,15 @@
             label15.TabIndex = 1;
             label15.Text = "Z, м";
             // 
-            // label13
+            // Hd_extrem
             // 
-            label13.AutoSize = true;
-            label13.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label13.Location = new Point(6, 23);
-            label13.Name = "label13";
-            label13.Size = new Size(100, 20);
-            label13.TabIndex = 0;
-            label13.Text = "Нд (макс), м";
+            Hd_extrem.AutoSize = true;
+            Hd_extrem.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            Hd_extrem.Location = new Point(6, 23);
+            Hd_extrem.Name = "Hd_extrem";
+            Hd_extrem.Size = new Size(100, 20);
+            Hd_extrem.TabIndex = 0;
+            Hd_extrem.Text = "Нд (макс), м";
             // 
             // Form1
             // 
@@ -598,7 +598,7 @@
         private Label Hd2;
         private Label Hd1;
         private Label label15;
-        private Label label13;
+        private Label Hd_extrem;
         private TextBox knt;
         private Label label6;
         private Label Hd_min;

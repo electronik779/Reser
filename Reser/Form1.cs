@@ -2,7 +2,7 @@
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Windows.Forms;
 
 namespace Reser
 {
@@ -12,14 +12,21 @@ namespace Reser
         {
             InitializeComponent();
 
-            this.FormClosed += new FormClosedEventHandler(Form1_FormClosed);
-
             dataGridView_discharge.ColumnHeadersVisible = false;
             dataGridView_discharge.RowHeadersVisible = false;
             dataGridView_discharge.AllowUserToAddRows = false;
             dataGridView_discharge.AllowUserToDeleteRows = false;
             dataGridView_discharge.AllowUserToOrderColumns = false;
             dataGridView_discharge.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
+            ToolStripMenuItem copyItem = new ToolStripMenuItem("Размножить вправо →");
+            copyItem.Click += CopyItem_Click;
+            contextMenu.Items.Add(copyItem);
+
+            // Привязываем меню к DataGridView
+            dataGridView_discharge.ContextMenuStrip = contextMenu;
+
 
             DataTable discharge = new DataTable();
 
@@ -257,7 +264,7 @@ namespace Reser
                     "Расход деривации, Qд", "Расход турбинных водоводов, Qт", 2, 0,
                     "Время, с", 0, (double)Tras,
                     "м³/c", Qmin, Qmax);
-                            
+
                 First = Table[0, 6];
                 Second = Table[0, 6];
                 // Определяем минимальный и максимальный уровень
@@ -280,72 +287,138 @@ namespace Reser
                 Hd_max.Text = "Макс.: " + Math.Round(Second, 2);
                 Hd_min.Text = "Мин.: " + Math.Round(First, 2);
 
-                // Определяем максимумы давления
-                if ((UQST[0] > UQST[1]) || (UQST[1] > UQST[2]))
+                // Определяем максимумы давления для верхового УР
+                if ((UQST[0] > 0) && (UQST[0] > UQST[1]))
                 {
-                decimal[] DYDX = new decimal[count];
-                First = 0;
-                Second = 0;
-                int SecondPosition = 0;
+                    decimal[] DYDX = new decimal[count];
+                    First = 0;
+                    Second = 0;
+                    int SecondPosition = 0;
 
-                decimal Min = Table[0, 7];
-                int Imin = 0;
-                int t2Pos = (int)(t2 / dt);
+                    decimal Min = Table[0, 7];
+                    int Imin = 0;
+                    int t2Pos = (int)(t2 / dt);
 
-                // Ищем первый полупериод
-                for (int i = 1; i < count; i++)
-                {
-                    //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
-                    if (Table[i, 7] < Min)
+                    // Ищем первый максимум
+                    for (int i = 1; i < count; i++)
                     {
-                        Min = Table[i, 7];
-                        Imin = i;
-                        //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
+                        //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
+                        if (Table[i, 7] < Min)
+                        {
+                            Min = Table[i, 7];
+                            Imin = i;
+                            //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
+                        }
                     }
-                }
-                if (Imin == 0) Imin = count;
-                Second = Table[Imin, 7];
-                //Debug.WriteLine("{0}, {1}", Imin, count);
+                    if (Imin == 0) Imin = count;
+                    Second = Table[Imin, 7];
+                    //Debug.WriteLine("{0}, {1}", Imin, count);
 
-                // Ищем второй максимум
-                for (int i = Imin; i > t2Pos; i--)
-                {
-                    //Debug.WriteLine("{0}, {1}, {2}, {3}, {4}",
-                    //    i, Second, SecondPosition, Table[i, 7], Table[i - 1, 7]);
-                    if (Table[i, 7] > Second)
+                    // Ищем второй максимум
+                    for (int i = Imin; i > t2Pos; i--)
                     {
-                        Second = Table[i, 7];
-                        SecondPosition = i;
+                        //Debug.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                        //    i, Second, SecondPosition, Table[i, 7], Table[i - 1, 7]);
+                        if (Table[i, 7] > Second)
+                        {
+                            Second = Table[i, 7];
+                            SecondPosition = i;
+                        }
+                        if (Table[i - 1, 7] < Second) break;
                     }
-                    if (Table[i - 1, 7] < Second) break;
-                }
 
-                // Ищем первый максимум
-                //Debug.WriteLine("{0}", t2Pos);
-                for (int i = 1; i < t2Pos + 1; i++)
-                {
-                    DYDX[i] = (Table[i, 7] - Table[i - 1, 7]) / dt;
-                }
-
-                for (int i = 1; i < t2Pos + 2; i++)
-                {
-                    //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
-                    if (DYDX[i - 1] > (decimal)1.5 * DYDX[i])
+                    // Ищем первый максимум
+                    //Debug.WriteLine("{0}", t2Pos);
+                    for (int i = 1; i < t2Pos + 1; i++)
                     {
-                        First = Table[i - 1, 7];
+                        DYDX[i] = (Table[i, 7] - Table[i - 1, 7]) / dt;
                     }
-                    if (DYDX[i - 1] > 0 && DYDX[i] < 0)
-                    {
-                        First = Table[i - 1, 7];
-                        //Debug.WriteLine("break");
-                        break;
-                    }
-                }
-                Hd1.Text = "Перв.: " + Math.Round(First, 2);
-                Hd2.Text = "Втор.: " + Math.Round(Second, 2);
-            }
-            else { Hd1.Text = "     -"; Hd2.Text = "     -"; }
 
+                    for (int i = 1; i < t2Pos + 2; i++)
+                    {
+                        //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
+                        if (DYDX[i - 1] > (decimal)1.5 * DYDX[i])
+                        {
+                            First = Table[i - 1, 7];
+                        }
+                        if (DYDX[i - 1] > 0 && DYDX[i] < 0)
+                        {
+                            First = Table[i - 1, 7];
+                            //Debug.WriteLine("break");
+                            break;
+                        }
+                    }
+                    Hd_extrem.Text = "Нд (макс), м";
+                    Hd1.Text = "Перв.: " + Math.Round(First, 2);
+                    Hd2.Text = "Втор.: " + Math.Round(Second, 2);
+                }
+
+                // Определяем максимумы давления низового УР
+                else if ((UQST[0] < 0) && (UQST[0] < UQST[1]))
+                {
+                    decimal[] DYDX = new decimal[count];
+                    First = 0;
+                    Second = 0;
+                    int SecondPosition = 0;
+
+                    decimal Max = Table[0, 7];
+                    int Imax = 0;
+                    int t2Pos = (int)(t2 / dt);
+
+                    // Ищем первый полупериод
+                    for (int i = 1; i < count; i++)
+                    {
+                        //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
+                        if (Table[i, 7] > Max)
+                        {
+                            Max = Table[i, 7];
+                            Imax = i;
+                            //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
+                        }
+                    }
+                    if (Imax == 0) Imax = count;
+                    Second = Table[Imax, 7];
+                    //Debug.WriteLine("{0}, {1}", Imin, count);
+
+                    // Ищем второй максимум
+                    for (int i = Imax; i > t2Pos; i--)
+                    {
+                        //Debug.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                        //    i, Second, SecondPosition, Table[i, 7], Table[i - 1, 7]);
+                        if (Table[i, 7] < Second)
+                        {
+                            Second = Table[i, 7];
+                            SecondPosition = i;
+                        }
+                        if (Table[i - 1, 7] > Second) break;
+                    }
+
+                    // Ищем первый максимум
+                    //Debug.WriteLine("{0}", t2Pos);
+                    for (int i = 1; i < t2Pos + 1; i++)
+                    {
+                        DYDX[i] = (Table[i, 7] - Table[i - 1, 7]) / dt;
+                    }
+
+                    for (int i = 1; i < t2Pos + 2; i++)
+                    {
+                        //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
+                        if (DYDX[i - 1] < (decimal)1.5 * DYDX[i])
+                        {
+                            First = Table[i - 1, 7];
+                        }
+                        if (DYDX[i - 1] < 0 && DYDX[i] > 0)
+                        {
+                            First = Table[i - 1, 7];
+                            //Debug.WriteLine("break");
+                            break;
+                        }
+                    }
+                    Hd_extrem.Text = "Нд (мин), м";
+                    Hd1.Text = "Перв.: " + Math.Round(First, 2);
+                    Hd2.Text = "Втор.: " + Math.Round(Second, 2);
+                }
+                else { Hd1.Text = "     -"; Hd2.Text = "     -"; }
             }
             catch
             {
@@ -639,9 +712,39 @@ namespace Reser
                 TryDeleteFile(tempFilePath);
             }
         }
-        private void Form1_FormClosed (object sender, EventArgs e)
+
+        private void dataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
-            TryDeleteFile(tempFilePath);
+            // Проверяем, что нажата правая кнопка и мы находимся внутри таблицы (не на заголовках)
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                dataGridView_discharge.ClearSelection();
+                dataGridView_discharge.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected = true;
+
+                // Устанавливаем текущую ячейку (фокус)
+                dataGridView_discharge.CurrentCell = dataGridView_discharge.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            }
         }
+
+        private void CopyItem_Click(object sender, EventArgs e)
+        {
+            var currentCell = dataGridView_discharge.CurrentCell;
+
+            if (currentCell != null && currentCell.ColumnIndex < dataGridView_discharge.ColumnCount - 1)
+            {
+                int counter = currentCell.ColumnIndex;
+
+                // Получаем значение текущей ячейки
+                object? value = currentCell.Value;
+
+                while (counter < dataGridView_discharge.ColumnCount - 1)
+                { 
+                    // Записываем в соседнюю справа (ColumnIndex + 1)
+                    dataGridView_discharge.Rows[currentCell.RowIndex].Cells[counter + 1].Value = value;
+                    counter++;
+                }
+            }
+        }
+
     }
 }
