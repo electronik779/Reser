@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
+using System.Windows.Forms;
 
 namespace Reser
 {
@@ -17,6 +18,15 @@ namespace Reser
             dataGridView_discharge.AllowUserToDeleteRows = false;
             dataGridView_discharge.AllowUserToOrderColumns = false;
             dataGridView_discharge.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
+            ToolStripMenuItem copyItem = new ToolStripMenuItem("Размножить вправо →");
+            copyItem.Click += CopyItem_Click;
+            contextMenu.Items.Add(copyItem);
+
+            // Привязываем меню к DataGridView
+            dataGridView_discharge.ContextMenuStrip = contextMenu;
+
 
             DataTable discharge = new DataTable();
 
@@ -702,5 +712,39 @@ namespace Reser
                 TryDeleteFile(tempFilePath);
             }
         }
+
+        private void dataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            // Проверяем, что нажата правая кнопка и мы находимся внутри таблицы (не на заголовках)
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                dataGridView_discharge.ClearSelection();
+                dataGridView_discharge.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected = true;
+
+                // Устанавливаем текущую ячейку (фокус)
+                dataGridView_discharge.CurrentCell = dataGridView_discharge.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            }
+        }
+
+        private void CopyItem_Click(object sender, EventArgs e)
+        {
+            var currentCell = dataGridView_discharge.CurrentCell;
+
+            if (currentCell != null && currentCell.ColumnIndex < dataGridView_discharge.ColumnCount - 1)
+            {
+                int counter = currentCell.ColumnIndex;
+
+                // Получаем значение текущей ячейки
+                object? value = currentCell.Value;
+
+                while (counter < dataGridView_discharge.ColumnCount - 1)
+                { 
+                    // Записываем в соседнюю справа (ColumnIndex + 1)
+                    dataGridView_discharge.Rows[currentCell.RowIndex].Cells[counter + 1].Value = value;
+                    counter++;
+                }
+            }
+        }
+
     }
 }
