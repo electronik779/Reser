@@ -2,7 +2,6 @@
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Reser
 {
@@ -11,8 +10,6 @@ namespace Reser
         public Form1()
         {
             InitializeComponent();
-
-            this.FormClosed += new FormClosedEventHandler(Form1_FormClosed);
 
             dataGridView_discharge.ColumnHeadersVisible = false;
             dataGridView_discharge.RowHeadersVisible = false;
@@ -257,7 +254,7 @@ namespace Reser
                     "Расход деривации, Qд", "Расход турбинных водоводов, Qт", 2, 0,
                     "Время, с", 0, (double)Tras,
                     "м³/c", Qmin, Qmax);
-                            
+
                 First = Table[0, 6];
                 Second = Table[0, 6];
                 // Определяем минимальный и максимальный уровень
@@ -283,68 +280,68 @@ namespace Reser
                 // Определяем максимумы давления
                 if ((UQST[0] > UQST[1]) || (UQST[1] > UQST[2]))
                 {
-                decimal[] DYDX = new decimal[count];
-                First = 0;
-                Second = 0;
-                int SecondPosition = 0;
+                    decimal[] DYDX = new decimal[count];
+                    First = 0;
+                    Second = 0;
+                    int SecondPosition = 0;
 
-                decimal Min = Table[0, 7];
-                int Imin = 0;
-                int t2Pos = (int)(t2 / dt);
+                    decimal Min = Table[0, 7];
+                    int Imin = 0;
+                    int t2Pos = (int)(t2 / dt);
 
-                // Ищем первый полупериод
-                for (int i = 1; i < count; i++)
-                {
-                    //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
-                    if (Table[i, 7] < Min)
+                    // Ищем первый полупериод
+                    for (int i = 1; i < count; i++)
                     {
-                        Min = Table[i, 7];
-                        Imin = i;
-                        //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
+                        //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
+                        if (Table[i, 7] < Min)
+                        {
+                            Min = Table[i, 7];
+                            Imin = i;
+                            //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
+                        }
                     }
-                }
-                if (Imin == 0) Imin = count;
-                Second = Table[Imin, 7];
-                //Debug.WriteLine("{0}, {1}", Imin, count);
+                    if (Imin == 0) Imin = count;
+                    Second = Table[Imin, 7];
+                    //Debug.WriteLine("{0}, {1}", Imin, count);
 
-                // Ищем второй максимум
-                for (int i = Imin; i > t2Pos; i--)
-                {
-                    //Debug.WriteLine("{0}, {1}, {2}, {3}, {4}",
-                    //    i, Second, SecondPosition, Table[i, 7], Table[i - 1, 7]);
-                    if (Table[i, 7] > Second)
+                    // Ищем второй максимум
+                    for (int i = Imin; i > t2Pos; i--)
                     {
-                        Second = Table[i, 7];
-                        SecondPosition = i;
+                        //Debug.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                        //    i, Second, SecondPosition, Table[i, 7], Table[i - 1, 7]);
+                        if (Table[i, 7] > Second)
+                        {
+                            Second = Table[i, 7];
+                            SecondPosition = i;
+                        }
+                        if (Table[i - 1, 7] < Second) break;
                     }
-                    if (Table[i - 1, 7] < Second) break;
-                }
 
-                // Ищем первый максимум
-                //Debug.WriteLine("{0}", t2Pos);
-                for (int i = 1; i < t2Pos + 1; i++)
-                {
-                    DYDX[i] = (Table[i, 7] - Table[i - 1, 7]) / dt;
-                }
+                    // Ищем первый максимум
+                    //Debug.WriteLine("{0}", t2Pos);
+                    for (int i = 1; i < t2Pos + 1; i++)
+                    {
+                        DYDX[i] = (Table[i, 7] - Table[i - 1, 7]) / dt;
+                    }
 
-                for (int i = 1; i < t2Pos + 2; i++)
-                {
-                    //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
-                    if (DYDX[i - 1] > (decimal)1.5 * DYDX[i])
+                    for (int i = 1; i < t2Pos + 2; i++)
                     {
-                        First = Table[i - 1, 7];
+                        //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
+                        if (DYDX[i - 1] > (decimal)1.5 * DYDX[i])
+                        {
+                            First = Table[i - 1, 7];
+                        }
+                        if (DYDX[i - 1] > 0 && DYDX[i] < 0)
+                        {
+                            First = Table[i - 1, 7];
+                            //Debug.WriteLine("break");
+                            break;
+                        }
                     }
-                    if (DYDX[i - 1] > 0 && DYDX[i] < 0)
-                    {
-                        First = Table[i - 1, 7];
-                        //Debug.WriteLine("break");
-                        break;
-                    }
+                    Hd1.Text = "Перв.: " + Math.Round(First, 2);
+                    Hd2.Text = "Втор.: " + Math.Round(Second, 2);
                 }
-                Hd1.Text = "Перв.: " + Math.Round(First, 2);
-                Hd2.Text = "Втор.: " + Math.Round(Second, 2);
-            }
-            else { Hd1.Text = "     -"; Hd2.Text = "     -"; }
+                else { Hd1.Text = "     -"; Hd2.Text = "     -"; }
 
             }
             catch
@@ -638,10 +635,6 @@ namespace Reser
                 // Удаление файла в случае ошибки
                 TryDeleteFile(tempFilePath);
             }
-        }
-        private void Form1_FormClosed (object sender, EventArgs e)
-        {
-            TryDeleteFile(tempFilePath);
         }
     }
 }
