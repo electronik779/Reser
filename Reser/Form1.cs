@@ -258,20 +258,31 @@ namespace Reser
                     "Время, с", 0, (double)Tras,
                     "м³/c", Qmin, Qmax);
                             
-            First = Table[0, 6];
-            Second = Table[0, 6];
-            // Определяем минимальный и максимальный уровень
-            for (int i = 0; i < count; i++)
-            {
-                if (Table[i, 6] < First) First = Table[i, 6];
-                if (Table[i, 6] > Second) Second = Table[i, 6];
-            }
-            Zmax.Text = "Макс.: " + Math.Round(Second, 2);
-            Zmin.Text = "Мин.: " + Math.Round(First, 2);
+                First = Table[0, 6];
+                Second = Table[0, 6];
+                // Определяем минимальный и максимальный уровень
+                for (int i = 0; i < count; i++)
+                {
+                    if (Table[i, 6] < First) First = Table[i, 6];
+                    if (Table[i, 6] > Second) Second = Table[i, 6];
+                }
+                Zmax.Text = "Макс.: " + Math.Round(Second, 2);
+                Zmin.Text = "Мин.: " + Math.Round(First, 2);
 
-            // Определяем максимумы давления
-            if ((UQST[0] > UQST[1]) || (UQST[1] > UQST[2]))
-            {
+                First = Table[0, 7];
+                Second = Table[0, 7];
+                // Определяем минимальное и максимальное давление
+                for (int i = 0; i < count; i++)
+                {
+                    if (Table[i, 7] < First) First = Table[i, 7];
+                    if (Table[i, 7] > Second) Second = Table[i, 7];
+                }
+                Hd_max.Text = "Макс.: " + Math.Round(Second, 2);
+                Hd_min.Text = "Мин.: " + Math.Round(First, 2);
+
+                // Определяем максимумы давления
+                if ((UQST[0] > UQST[1]) || (UQST[1] > UQST[2]))
+                {
                 decimal[] DYDX = new decimal[count];
                 First = 0;
                 Second = 0;
@@ -330,8 +341,8 @@ namespace Reser
                         break;
                     }
                 }
-                Hd1.Text = "Первый: " + Math.Round(First, 2);
-                Hd2.Text = "Второй: " + Math.Round(Second, 2);
+                Hd1.Text = "Перв.: " + Math.Round(First, 2);
+                Hd2.Text = "Втор.: " + Math.Round(Second, 2);
             }
             else { Hd1.Text = "     -"; Hd2.Text = "     -"; }
 
