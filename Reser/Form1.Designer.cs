@@ -168,7 +168,7 @@
             knt.Location = new Point(145, 119);
             knt.Name = "knt";
             knt.Size = new Size(57, 27);
-            knt.TabIndex = 7;
+            knt.TabIndex = 3;
             knt.TextAlign = HorizontalAlignment.Right;
             // 
             // label6
@@ -280,7 +280,7 @@
             Frt.Location = new Point(145, 31);
             Frt.Name = "Frt";
             Frt.Size = new Size(57, 27);
-            Frt.TabIndex = 3;
+            Frt.TabIndex = 4;
             Frt.TextAlign = HorizontalAlignment.Right;
             Frt.TextChanged += Fr_TextChanged;
             // 
