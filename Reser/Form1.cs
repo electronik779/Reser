@@ -277,8 +277,8 @@ namespace Reser
                 Hd_max.Text = "Макс.: " + Math.Round(Second, 2);
                 Hd_min.Text = "Мин.: " + Math.Round(First, 2);
 
-                // Определяем максимумы давления
-                if ((UQST[0] > UQST[1]) || (UQST[1] > UQST[2]))
+                // Определяем максимумы давления для верхового УР
+                if ((UQST[0] > 0) && (UQST[0] > UQST[1]))
                 {
                     decimal[] DYDX = new decimal[count];
                     First = 0;
@@ -289,7 +289,7 @@ namespace Reser
                     int Imin = 0;
                     int t2Pos = (int)(t2 / dt);
 
-                    // Ищем первый полупериод
+                    // Ищем первый максимум
                     for (int i = 1; i < count; i++)
                     {
                         //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
@@ -338,11 +338,77 @@ namespace Reser
                             break;
                         }
                     }
+                    Hd_extrem.Text = "Нд (макс), м";
+                    Hd1.Text = "Перв.: " + Math.Round(First, 2);
+                    Hd2.Text = "Втор.: " + Math.Round(Second, 2);
+                }
+
+                // Определяем максимумы давления низового УР
+                else if ((UQST[0] < 0) && (UQST[0] < UQST[1]))
+                {
+                    decimal[] DYDX = new decimal[count];
+                    First = 0;
+                    Second = 0;
+                    int SecondPosition = 0;
+
+                    decimal Max = Table[0, 7];
+                    int Imax = 0;
+                    int t2Pos = (int)(t2 / dt);
+
+                    // Ищем первый полупериод
+                    for (int i = 1; i < count; i++)
+                    {
+                        //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
+                        if (Table[i, 7] > Max)
+                        {
+                            Max = Table[i, 7];
+                            Imax = i;
+                            //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
+                        }
+                    }
+                    if (Imax == 0) Imax = count;
+                    Second = Table[Imax, 7];
+                    //Debug.WriteLine("{0}, {1}", Imin, count);
+
+                    // Ищем второй максимум
+                    for (int i = Imax; i > t2Pos; i--)
+                    {
+                        //Debug.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                        //    i, Second, SecondPosition, Table[i, 7], Table[i - 1, 7]);
+                        if (Table[i, 7] < Second)
+                        {
+                            Second = Table[i, 7];
+                            SecondPosition = i;
+                        }
+                        if (Table[i - 1, 7] > Second) break;
+                    }
+
+                    // Ищем первый максимум
+                    //Debug.WriteLine("{0}", t2Pos);
+                    for (int i = 1; i < t2Pos + 1; i++)
+                    {
+                        DYDX[i] = (Table[i, 7] - Table[i - 1, 7]) / dt;
+                    }
+
+                    for (int i = 1; i < t2Pos + 2; i++)
+                    {
+                        //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
+                        if (DYDX[i - 1] < (decimal)1.5 * DYDX[i])
+                        {
+                            First = Table[i - 1, 7];
+                        }
+                        if (DYDX[i - 1] < 0 && DYDX[i] > 0)
+                        {
+                            First = Table[i - 1, 7];
+                            //Debug.WriteLine("break");
+                            break;
+                        }
+                    }
+                    Hd_extrem.Text = "Нд (мин), м";
                     Hd1.Text = "Перв.: " + Math.Round(First, 2);
                     Hd2.Text = "Втор.: " + Math.Round(Second, 2);
                 }
                 else { Hd1.Text = "     -"; Hd2.Text = "     -"; }
-
             }
             catch
             {
