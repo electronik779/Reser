@@ -67,9 +67,9 @@ namespace Reser
                 Guid.NewGuid().ToString() + ".pdf");
 
 
-        decimal[,] Table = new decimal[32768, 8];
+        double[,] Table = new double[32768, 8];
 
-        decimal t2 = 0;
+        double t2 = 0;
 
         int count;
 
@@ -79,55 +79,55 @@ namespace Reser
 
             int IK = 6;
 
-            decimal[] UT = new decimal[6];
-            decimal[] UQST = new decimal[6];
+            double[] UT = new double[6];
+            double[] UQST = new double[6];
 
-            decimal Ld = 0;
-            decimal Fd = 0;
-            decimal Fr = 0;
-            decimal kn = 0;
-            decimal kr = 0;
-            decimal dt = 0;
-            decimal Tras = 0;
-            decimal kwd;
-            decimal kwr;
-            decimal Dd;
-            decimal R;
-            decimal Qst;
-            decimal Qd;
-            decimal Qr;
-            decimal Hwd;
-            decimal Hwr;
-            decimal Z;
-            decimal Hd;
-            decimal Shesi;
-            decimal DZDT;
-            decimal DQdDT;
-            decimal First;
-            decimal Second;
-            decimal T = 0;
+            double Ld = 0;
+            double Fd = 0;
+            double Fr = 0;
+            double kn = 0;
+            double kr = 0;
+            double dt = 0;
+            double Tras = 0;
+            double kwd;
+            double kwr;
+            double Dd;
+            double R;
+            double Qst;
+            double Qd;
+            double Qr;
+            double Hwd;
+            double Hwr;
+            double Z;
+            double Hd;
+            double Shesi;
+            double DZDT;
+            double DQdDT;
+            double First;
+            double Second;
+            double T = 0;
 
-            try { Ld = GetDecimal(Ldt.Text, 0m); }
+            try { Ld = GetDouble(Ldt.Text, 0d); }
             catch { ErrorMsg(Ldt, "длину деривации"); }
-            try { Fd = GetDecimal(Fdt.Text, 0m); }
+            try { Fd = GetDouble(Fdt.Text, 0d); }
             catch { ErrorMsg(Fdt, "площадь деривации"); }
-            try { Fr = GetDecimal(Frt.Text, 0m); }
+            try { Fr = GetDouble(Frt.Text, 0d); }
             catch { ErrorMsg(Frt, "площадь резервуара"); }
-            try { kn = GetDecimal(knt.Text, 0m); }
+            try { kn = GetDouble(knt.Text, 0d); }
             catch { ErrorMsg(knt, "коэффициент шероховатости"); }
-            try { kr = GetDecimal(krt.Text, 0m); }
+            try { kr = GetDouble(krt.Text, 0d); }
             catch { ErrorMsg(krt, "коэффициент дополнительного сопротивления"); }
-            try { dt = GetDecimal(dtt.Text, 0m); }
+            try { dt = GetDouble(dtt.Text, 0d); }
             catch { ErrorMsg(dtt, "шаг расчета"); }
-            try { Tras = GetDecimal(Trast.Text, 0m); }
+            try { Tras = GetDouble(Trast.Text, 0d); }
             catch { ErrorMsg(Trast, "время расчета"); }
 
             for (int i = 0; i < 6; i++)
             {
                 try
                 {
-                    UT[i] = GetDecimal((string)dataGridView_discharge.Rows[0].Cells[i].Value, 0m);
-                    UQST[i] = GetDecimal((string)dataGridView_discharge.Rows[1].Cells[i].Value, 0m);
+                    UT[i] = GetDouble((string)dataGridView_discharge.Rows[0].Cells[i].Value, 0d);
+                    UQST[i] = GetDouble((string)dataGridView_discharge.Rows[1].Cells[i].Value, 0d);
                 }
                 catch
                 {
@@ -151,23 +151,23 @@ namespace Reser
 
             try
             {
-                Dd = (decimal)Math.Pow(4 * (double)Fd / 3.1415, 0.5);
+                Dd = Math.Pow(4 * Fd / 3.1415, 0.5);
                 R = Dd / 4;
 
                 if (kn > 0)
                 {
-                    Shesi = 1 / kn * (decimal)Math.Pow((double)R, 1 / 6);
-                    kwd = Ld / ((decimal)Math.Pow((double)Shesi, 2) * R * (decimal)Math.Pow((double)Fd, 2));
+                    Shesi = 1 / kn * Math.Pow(R, 1 / 6);
+                    kwd = Ld / (Math.Pow(Shesi, 2) * R * Math.Pow(Fd, 2));
                 }
                 else { kwd = 0; }
 
-                kwr = kr / ((decimal)19.62 * (decimal)Math.Pow((double)Fd, 2));
+                kwr = kr / (19.62 * Math.Pow(Fd, 2));
 
                 Qst = Int11(T, IK, UT, UQST);
                 Qd = Qst;
                 Qr = 0;
                 Hwd = kwd * Qd * Math.Abs(Qd);
-                Hwr = (decimal)Math.Pow((double)Qd, 2) / ((decimal)19.62 * (decimal)Math.Pow((double)Fd, 2));
+                Hwr = Math.Pow(Qd, 2) / (19.62 * Math.Pow(Fd, 2));
                 Z = -Hwd - Hwr;
                 Hd = Z + Hwr;
 
@@ -194,12 +194,11 @@ namespace Reser
                     Qst = Int11(T, IK, UT, UQST);
                     DZDT = (Qd - Qst) / Fr;
                     Z += DZDT * dt;
-                    DQdDT = -(Z + Hwd + Hwr) * Fd * (decimal)9.81 / Ld;
+                    DQdDT = -(Z + Hwd + Hwr) * Fd * 9.81 / Ld;
                     Qd += DQdDT * dt;
                     Hwd = kwd * Qd * Math.Abs(Qd);
                     Qr = Qd - Qst;
-                    Hwr = kwr * Qr * Math.Abs(Qr) + (decimal)Math.Pow((double)Qd, 2) /
-                        ((decimal)19.62 * (decimal)Math.Pow((double)Fd, 2));
+                    Hwr = kwr * Qr * Math.Abs(Qr) + Math.Pow(Qd, 2) / (19.62 * Math.Pow(Fd, 2));
                     Hd = Z + Hwr;
                     Table[count, 0] = T;
                     Table[count, 1] = Qst;
@@ -246,23 +245,23 @@ namespace Reser
 
                 for (int i = 0; i < count; i++)
                 {
-                    DataX[i] = (double)Table[i, 0];
-                    DataY1[i] = (double)Table[i, 6];
-                    DataY2[i] = (double)Table[i, 7];
+                    DataX[i] = Table[i, 0];
+                    DataY1[i] = Table[i, 6];
+                    DataY2[i] = Table[i, 7];
                 }
                 BuildChart_2lines(formsPlot_L, DataX, DataY1, DataY2,
                     "Уровень в УР, Z", "Давление в деривации, Нд", 2, 0,
-                    "Время, с", 0, (double)Tras,
+                    "Время, с", 0, Tras,
                     "м", Lmin, Lmax);
 
                 for (int i = 0; i < count; i++)
                 {
-                    DataY1[i] = (double)Table[i, 2];
-                    DataY2[i] = (double)Table[i, 1];
+                    DataY1[i] = Table[i, 2];
+                    DataY2[i] = Table[i, 1];
                 }
                 BuildChart_2lines(formsPlot_Q, DataX, DataY1, DataY2,
                     "Расход деривации, Qд", "Расход турбинных водоводов, Qт", 2, 0,
-                    "Время, с", 0, (double)Tras,
+                    "Время, с", 0, Tras,
                     "м³/c", Qmin, Qmax);
 
                 First = Table[0, 6];
@@ -290,12 +289,12 @@ namespace Reser
                 // Определяем максимумы давления для верхового УР
                 if ((UQST[0] > 0) && (UQST[0] > UQST[1]))
                 {
-                    decimal[] DYDX = new decimal[count];
+                    double[] DYDX = new double[count];
                     First = 0;
                     Second = 0;
                     int SecondPosition = 0;
 
-                    decimal Min = Table[0, 7];
+                    double Min = Table[0, 7];
                     int Imin = 0;
                     int t2Pos = (int)(t2 / dt);
 
@@ -337,7 +336,7 @@ namespace Reser
                     for (int i = 1; i < t2Pos + 2; i++)
                     {
                         //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
-                        if (DYDX[i - 1] > (decimal)1.5 * DYDX[i])
+                        if (DYDX[i - 1] > 1.5 * DYDX[i])
                         {
                             First = Table[i - 1, 7];
                         }
@@ -356,12 +355,12 @@ namespace Reser
                 // Определяем максимумы давления низового УР
                 else if ((UQST[0] < 0) && (UQST[0] < UQST[1]))
                 {
-                    decimal[] DYDX = new decimal[count];
+                    double[] DYDX = new double[count];
                     First = 0;
                     Second = 0;
                     int SecondPosition = 0;
 
-                    decimal Max = Table[0, 7];
+                    double Max = Table[0, 7];
                     int Imax = 0;
                     int t2Pos = (int)(t2 / dt);
 
@@ -403,7 +402,7 @@ namespace Reser
                     for (int i = 1; i < t2Pos + 2; i++)
                     {
                         //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
-                        if (DYDX[i - 1] < (decimal)1.5 * DYDX[i])
+                        if (DYDX[i - 1] < 1.5 * DYDX[i])
                         {
                             First = Table[i - 1, 7];
                         }
@@ -456,9 +455,9 @@ namespace Reser
             chartName.Refresh();
         }
 
-        private decimal Int11(decimal D, int N, decimal[] X, decimal[] Y)
+        private double Int11(double D, int N, double[] X, double[] Y)
         {
-            decimal V = -1;
+            double V = -1;
             int i;
             for (i = 1; i < N; i++)
             {
@@ -476,15 +475,15 @@ namespace Reser
             return V;
         }
 
-        private decimal GetDecimal(string str, decimal defaultValue)
+        private double GetDouble(string str, double defaultValue)
         {
-            decimal result;
+            double result;
             //Try parsing in the current culture
-            if (!decimal.TryParse(str, NumberStyles.Any, CultureInfo.CurrentCulture, out result) &&
+            if (!double.TryParse(str, NumberStyles.Any, CultureInfo.CurrentCulture, out result) &&
                 //Then try in US english
-                !decimal.TryParse(str, NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out result) &&
+                !double.TryParse(str, NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out result) &&
                 //Then in neutral language
-                !decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+                !double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
             {
                 result = defaultValue;
                 throw new ArgumentNullException();
@@ -678,7 +677,7 @@ namespace Reser
                         for (int i = 0; i < 8; i++)
                         {
                             double tmp;
-                            tmp = (double)Table[j, i];
+                            tmp = Table[j, i];
                             //Debug.WriteLine("{0}, {1}, {2}", j, i, tmp);
                             list.Add(tmp.ToString());
                         }
@@ -745,6 +744,5 @@ namespace Reser
                 }
             }
         }
-
     }
 }
