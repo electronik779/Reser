@@ -65,7 +65,7 @@ jobs:
           # После download-artifact файл будет лежать в текущей папке
           files: Windows-x64-Reser.zip
           tag_name: ${{ github.ref_name }}
-          generate_release_notes: true # Автоматически создаст описание из списка коммитов
+          #generate_release_notes: true # Автоматически создаст описание из списка коммитов
           append_body: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
