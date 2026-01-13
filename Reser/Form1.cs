@@ -46,7 +46,7 @@ namespace Reser
 
             for (int i = 0; i < dataGridView_discharge.Columns.Count; i++)
             {
-                dataGridView_discharge.Columns[i].Width = 60;
+                dataGridView_discharge.Columns[i].Width = 52;
             }
 
             openData.Filter = "CSV файлы (*.csv)|*.csv";
