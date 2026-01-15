@@ -2,7 +2,6 @@
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using System.Windows.Forms;
 
 namespace Reser
 {
@@ -17,7 +16,10 @@ namespace Reser
             dataGridView_discharge.AllowUserToAddRows = false;
             dataGridView_discharge.AllowUserToDeleteRows = false;
             dataGridView_discharge.AllowUserToOrderColumns = false;
-            dataGridView_discharge.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridView_discharge.DefaultCellStyle.Alignment =
+                DataGridViewContentAlignment.MiddleCenter;
+            dataGridView_discharge.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dataGridView_discharge.AllowUserToResizeRows = true;
 
             ContextMenuStrip contextMenu = new ContextMenuStrip();
             ToolStripMenuItem copyItem = new ToolStripMenuItem("Размножить вправо →");
@@ -44,10 +46,26 @@ namespace Reser
 
             dataGridView_discharge.DataSource = discharge;
 
-            for (int i = 0; i < dataGridView_discharge.Columns.Count; i++)
+            int dgvWidth = dataGridView_discharge.Width;
+            int dgvHeight = dataGridView_discharge.Height;
+            int cellWidth = (dgvWidth / 6) - 1;
+            int cellHeight = (dgvHeight / 2) - 2;
+            dataGridView_discharge.Width = (cellWidth * 6) + 3;
+            dataGridView_discharge.Height = (cellHeight * 2) + 3;
+            //Debug.WriteLine("W= {0}, H= {1}, cW= {2}, cH= {3}",
+            //dgvWidth, dgvHeight, colWidth, colHeight);
+
+            foreach (DataGridViewColumn col in dataGridView_discharge.Columns)
             {
-                dataGridView_discharge.Columns[i].Width = 52;
+                col.Width = cellWidth;
             }
+            dataGridView_discharge.RowTemplate.Height = cellHeight; // Это работает.
+            // Закоменченый код ниже - не работает.
+            //foreach (DataGridViewRow row in dataGridView_discharge.Rows)
+            //{
+            //    row.MinimumHeight = cellHeight;
+            //    row.Height = cellHeight;
+            //}
 
             openData.Filter = "CSV файлы (*.csv)|*.csv";
 
@@ -741,7 +759,7 @@ namespace Reser
                 object? value = currentCell.Value;
 
                 while (counter < dataGridView_discharge.ColumnCount - 1)
-                { 
+                {
                     // Записываем в соседнюю справа (ColumnIndex + 1)
                     dataGridView_discharge.Rows[currentCell.RowIndex].Cells[counter + 1].Value = value;
                     counter++;
