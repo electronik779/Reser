@@ -155,7 +155,15 @@ namespace Reser
                 }
             }
 
-            t2 = UT[1];
+            for (int i = 0; i < UQST.Length; i++)
+            {
+                if (UQST[i] == 0)
+                {
+                    t2 = UT[i];
+                    break;
+                }
+            }
+            Debug.WriteLine("t2= {0}", t2);
 
             if (kn < 0) kn = 0;
 
