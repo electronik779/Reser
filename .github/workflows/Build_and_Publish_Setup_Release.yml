@@ -1,0 +1,242 @@
+name: Build and Publish Setup Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Имя тега (например, v2026.0)'
+        required: true
+        type: string
+      build_windows:
+        description: 'Собрать установщик под Windows?'
+        required: true
+        type: boolean
+        default: true
+      build_macos:
+        description: 'Собрать установщик под macOS?'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  build-windows:
+    if: inputs.build_windows == true
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [win-x64, win-arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install MAUI Workload
+        run: dotnet workload install maui
+
+      - name: Create Dummy License File (Windows)
+        shell: pwsh
+        run: |
+          New-Item -Path "." -Name "MIT License.txt" -ItemType "file" -Force
+
+      - name: Build Windows
+        run: >
+          dotnet publish Reser.maui/Reser.maui.csproj 
+          -f net10.0-windows10.0.19041.0
+          -p:TargetFrameworks=net10.0-windows10.0.19041.0
+          -c Release 
+          -r ${{ matrix.arch }}
+          -p:SolutionDir="../"
+          -p:PublishSingleFile=false 
+          -p:WindowsAppSDKSelfContained=false
+          --self-contained false
+
+      # ИСПРАВЛЕНО: Указываем точный путь к папке публикации согласно логам отладки
+      - name: Upload Raw Windows Files for Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-files-${{ matrix.arch }}
+          path: Reser.maui/bin/Release/net10.0-windows10.0.19041.0/${{ matrix.arch }}/publish
+
+  build-installer:
+    if: inputs.build_windows == true
+    runs-on: windows-latest
+    needs: build-windows
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Windows x64 Raw Files
+        uses: actions/download-artifact@v4
+        with:
+          name: raw-files-win-x64
+          path: win-x64
+
+      - name: Download Windows arm64 Raw Files
+        uses: actions/download-artifact@v4
+        with:
+          name: raw-files-win-arm64
+          path: win-arm64
+
+      - name: Create License File for Installer
+        shell: pwsh
+        run: New-Item -Path "." -Name "MIT License.txt" -ItemType "file" -Force
+
+      - name: Create Output Directory
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force -Path "Reser-setup-universal"
+
+      - name: Compile Universal Installer
+        # Флаг /F переопределяет OutputBaseFilename из setup.iss на динамическое имя с тегом
+        run: |
+          cd Reser.maui\Installer_files
+          iscc /F"Setup_Reser_${{ inputs.release_tag }}_Win" setup.iss
+
+      - name: Upload Final Installer Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-universal-installer
+          path: Reser-setup-universal/Setup_Reser_${{ inputs.release_tag }}_Win.exe
+
+  build-macos:
+    if: inputs.build_macos == true
+    runs-on: macos-26
+    strategy:
+      matrix:
+        arch: [maccatalyst-x64, maccatalyst-arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26.6
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_26.6.app
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install MAUI Workload
+        run: |
+          dotnet workload install maui
+          dotnet workload install maccatalyst
+
+      - name: Create Dummy License File (macOS)
+        run: |
+          touch "MIT License.txt"
+
+      #- name: Clean
+      #  run: |
+      #    dotnet clean --configuration Release
+      #    rm -rf Reser.maui/bin Reser.maui/obj
+
+      - name: Build macOS
+        run: >
+          dotnet publish Reser.maui/Reser.maui.csproj 
+          -f net10.0-maccatalyst
+          -p:TargetFrameworks=net10.0-maccatalyst
+          -c Release 
+          -r ${{ matrix.arch }}
+          -p:SolutionDir="../"
+          -p:CreatePackage=true
+          -p:PublishTrimmed=true
+          -p:PublishSingleFile=false
+
+      - name: Archive macOS App
+        run: |
+          cd Reser.maui/bin/Release/net10.0-maccatalyst/${{ matrix.arch }}/
+          zip -r ../../../../../Reser.maui-${{ matrix.arch }}.zip Reser.maui.app
+
+      - name: Upload Raw macOS App
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-mac-${{ matrix.arch }}
+          path: Reser.maui-${{ matrix.arch }}.zip
+
+  build-macos-dmg:
+    if: inputs.build_macos == true
+    runs-on: macos-26
+    needs: build-macos
+    steps:
+      - name: Download macOS x64 App
+        uses: actions/download-artifact@v4
+        with:
+          name: raw-mac-maccatalyst-x64
+          path: .
+
+      - name: Download macOS arm64 App
+        uses: actions/download-artifact@v4
+        with:
+          name: raw-mac-maccatalyst-arm64
+          path: .
+
+      - name: Unzip macOS Apps
+        run: |
+          unzip Reser.maui-maccatalyst-x64.zip -d mac-x64
+          unzip Reser.maui-maccatalyst-arm64.zip -d mac-arm64
+
+      - name: Install create-dmg tool
+        run: brew install create-dmg
+
+      - name: Create Universal MacOS App Bundle
+        run: |
+          mkdir -p Reser-Universal.app
+          cp -R mac-arm64/Reser.maui.app/ Reser-Universal.app/
+          
+          EXEC_NAME=$(defaults read "$PWD/Reser-Universal.app/Contents/Info.plist" CFBundleExecutable)
+          
+          lipo -create \
+            "mac-x64/Reser.maui.app/Contents/MacOS/$EXEC_NAME" \
+            "mac-arm64/Reser.maui.app/Contents/MacOS/$EXEC_NAME" \
+            -output "Reser-Universal.app/Contents/MacOS/$EXEC_NAME"
+
+      - name: Create DMG Installer
+        # ИСПРАВЛЕНО: Изменено имя результирующего .dmg файла
+        run: |
+          mkdir -p dmg-source
+          mv Reser-Universal.app dmg-source/Reser.app
+          create-dmg \
+            --volname "Reser Installer" \
+            --window-pos 200 120 \
+            --window-size 500 300 \
+            --icon-size 100 \
+            --icon "Reser.app" 125 125 \
+            --app-drop-link 375 125 \
+            "Setup_Reser_${{ inputs.release_tag }}_Mac.dmg" \
+            "dmg-source/"
+
+      - name: Upload Final DMG Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal-dmg
+          path: "*.dmg"
+
+  publish-release:
+    runs-on: ubuntu-latest
+    needs: [build-installer, build-macos-dmg]
+    if: |
+      success() && 
+      (inputs.build_windows == true || inputs.build_macos == true)
+    permissions:
+      contents: write
+    steps:
+      - name: Download All Release Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ inputs.release_tag }}
+          name: ${{ inputs.release_tag }}
+          draft: false
+          prerelease: false
+          files: |
+            Setup_Reser_*_Win.exe
+            Setup_Reser_*_Mac.dmg
