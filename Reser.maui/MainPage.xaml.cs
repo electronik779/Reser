@@ -398,7 +398,7 @@ namespace Reser.maui
 
                     diversionPressure = surgeTankElevation + surgeTankHeadLoss;
 
-                    Debug.WriteLine($"stepsCount = {stepsCount}, step = {step}");
+                    //Debug.WriteLine($"stepsCount = {stepsCount}, step = {step}");
 
                     resultData[step, 0] = time;
                     resultData[step, 1] = penstockDischarge;
@@ -469,7 +469,7 @@ namespace Reser.maui
                             //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
                         }
                     }
-                    Debug.WriteLine("{0}, {1}", Imin, stepsCount);
+                    //Debug.WriteLine("{0}, {1}", Imin, stepsCount);
                     if (Imin == 0) Imin = stepsCount - 1;
                     diversionPressureSecondMaximum = resultData[Imin, 7];
 
