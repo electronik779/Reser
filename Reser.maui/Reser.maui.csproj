@@ -46,6 +46,30 @@
 		<PackageIcon>reser_ico.png</PackageIcon>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-ios|AnyCPU'">
+	  <ApplicationIdGuid>A741D9B7-C348-4D4A-924E-BB9A1378479D</ApplicationIdGuid>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-maccatalyst|AnyCPU'">
+	  <ApplicationIdGuid>A741D9B7-C348-4D4A-924E-BB9A1378479D</ApplicationIdGuid>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationIdGuid>A741D9B7-C348-4D4A-924E-BB9A1378479D</ApplicationIdGuid>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
+	  <ApplicationIdGuid>A741D9B7-C348-4D4A-924E-BB9A1378479D</ApplicationIdGuid>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-maccatalyst|AnyCPU'">
+	  <ApplicationIdGuid>A741D9B7-C348-4D4A-924E-BB9A1378479D</ApplicationIdGuid>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-windows10.0.19041.0|AnyCPU'">
+	  <ApplicationIdGuid>A741D9B7-C348-4D4A-924E-BB9A1378479D</ApplicationIdGuid>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\reser_ico.png" BaseSize="512,512" />
