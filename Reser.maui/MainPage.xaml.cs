@@ -770,7 +770,7 @@ namespace Reser.maui
                     SeparatorsPaint = new SolidColorPaint
                     {
                         // Для Светлой темы (Light): черный цвет с прозрачностью ~9% (22 из 255)
-                        Color = new SKColor(0, 0, 0, 22),
+                        Color = new SKColor(204,204,204),
                         StrokeThickness = 1f // Ровно 1 пиксель
                     }
                 }
