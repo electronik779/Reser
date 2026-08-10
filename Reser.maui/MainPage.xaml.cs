@@ -1,4 +1,5 @@
-﻿using LiveChartsCore;
+﻿using CommunityToolkit.Maui.Storage;
+using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Maui;
@@ -7,8 +8,6 @@ using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text;
-using CommunityToolkit.Maui.Storage;
-using System.Diagnostics;
 
 namespace Reser.maui
 {
@@ -622,10 +621,10 @@ namespace Reser.maui
                 string headerLine = string.Join(";", headers.Select(EscapeCsvField));
                 csvContent.AppendLine(headerLine);
 
-                for (int r = 0; r < timeCount;  r++)
+                for (int r = 0; r < timeCount; r++)
                 {
                     string processedCells = "";
-                    for (int c = 0; c < 7;  c++)
+                    for (int c = 0; c < 7; c++)
                     {
                         processedCells += resultData[r, c].ToString("F2") + ";";
                     }
