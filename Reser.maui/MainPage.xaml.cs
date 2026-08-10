@@ -696,7 +696,7 @@ namespace Reser.maui
 
         // D - текущее время
         // N - количество точек массива
-        // data - массив [2,N] 
+        // data - массив [2,N], 0,N - время, 1,N - расход
         private double Int11(double D, int N, double[,] data)
         {
             double V = -1;
