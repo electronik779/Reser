@@ -1,0 +1,425 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Reser.maui"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.Maui;assembly=LiveChartsCore.SkiaSharpView.Maui"
+             x:Class="Reser.maui.MainPage"
+             Title="Уравнительный резервуар &#x00AD;с дополнительным сопротивлением">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Открыть" 
+                     Clicked="Open_Click" 
+                     IconImageSource="open_icon.png" />
+        <ToolbarItem Text="Сохранить" 
+                     Clicked="Save_Click" 
+                     IconImageSource="save_icon.png" />
+        <ToolbarItem Text="Выполнить" 
+                     Clicked="Execute_Click" 
+                     IconImageSource="execute_icon.png" />
+        <ToolbarItem Text="Сохранить результат" 
+                     Clicked="Save_Results_Click" 
+                     IconImageSource="save_icon.png" 
+                     x:Name="saveResults_button"/>
+        <ToolbarItem Clicked="Help_Click" 
+                     IconImageSource="help_icon.png" />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            
+            <Style x:Key="EntryStyle"
+                   TargetType="Entry">
+                <Setter Property="WidthRequest" Value="80"/>
+                <Setter Property="HeightRequest" Value="20"/>
+                <Setter Property="Keyboard" Value="Numeric"/>
+                <Setter Property="Margin" Value="0,0,0,0"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+
+                <!-- Выделение текста при фокусе (Tab) -->
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <!-- Состояние по умолчанию -->
+                            <VisualState Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                                    <!-- Для ParamEntryStyle измените Light на #F0F0F2 -->
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=#2C2C2C}" />
+                                </VisualState.Setters>
+                            </VisualState>
+
+                            <!-- Состояние при фокусе (Tab / Клик) -->
+                            <VisualState Name="Focused">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                                    <!-- Для ParamEntryStyle измените Light на #F0F0F2 -->
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=#333333}" />
+                                </VisualState.Setters>
+                            </VisualState>
+
+                            <VisualState Name="Invalid">
+                                <VisualState.Setters>
+                                    <!-- Красный текст и светло-красный фон для ошибки -->
+                                    <Setter Property="TextColor" Value="Red" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FFEAEA, Dark=#4A2323}" />
+                                </VisualState.Setters>
+                            </VisualState>
+
+                            <!-- Состояние, когда поле заблокировано (IsEnabled="False") -->
+                            <VisualState Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=Gray, Dark=#888888}" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#E0E0E0, Dark=#1E1E1E}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+
+            </Style>
+            
+            <Style x:Key="LabelStyle"
+                   TargetType="Label">
+                <Setter Property="Margin" Value="0,0,0,0"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+                <Setter Property="HorizontalOptions" Value="Start"/>
+            </Style>
+
+            <Style x:Key="TableLabelStyle" TargetType="Label">
+                <!-- Автоматический цвет текста: черный для светлой темы, белый для темной -->
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <!-- Общий стиль для всех ячеек ввода в таблицах -->
+            <Style x:Key="TableCellEntryStyle" TargetType="Entry">
+                <Setter Property="WidthRequest" Value="80" />
+                <Setter Property="Keyboard" Value="Numeric" />
+
+                <!-- Привязка IsEnabled и IsVisible к свойствам родительской строки TableRow -->
+                <Setter Property="IsEnabled" Value="{Binding Source={RelativeSource AncestorType={x:Type local:TableRow}}, Path=IsEditable}" />
+                <Setter Property="IsVisible" Value="{Binding Source={RelativeSource AncestorType={x:Type local:TableRow}}, Path=IsVisible}" />
+
+                <!-- Выделение текста при фокусе (Tab) -->
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <!-- Состояние по умолчанию -->
+                            <VisualState Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=#2C2C2C}" />
+                                </VisualState.Setters>
+                            </VisualState>
+
+                            <!-- Состояние при фокусе (Tab / Клик) -->
+                            <VisualState Name="Focused">
+                                <VisualState.Setters>
+                                    <!-- <Setter Property="CursorPosition" Value="0" />
+                                    <Setter Property="SelectionLength" Value="100" /> -->
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=#333333}" />
+                                </VisualState.Setters>
+                            </VisualState>
+
+                            <VisualState Name="Invalid">
+                                <VisualState.Setters>
+                                    <!-- Красный текст и светло-красный фон для ошибки -->
+                                    <Setter Property="TextColor" Value="Red" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FFEAEA, Dark=#4A2323}" />
+                                </VisualState.Setters>
+                            </VisualState>
+
+                            <!-- Состояние, когда поле заблокировано (IsEnabled="False") -->
+                            <VisualState Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=Gray, Dark=#888888}" />
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#E0E0E0, Dark=#1E1E1E}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+            <Style x:Key="GridTableLabelStyle" TargetType="Label">
+                <!-- Автоматический цвет текста: черный для светлой темы, белый для темной -->
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=Black}" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="GridTableStyle" TargetType="Grid">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=Black}" />
+                <Setter Property="Padding" Value="5" />
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <HorizontalStackLayout Padding="15">
+            <Grid ColumnDefinitions="240,*,*"
+                  RowDefinitions="Auto,*,*,*,*,*,*,*,*,*,
+                                  *,*,Auto">
+                
+                <Label Grid.Row="0"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Text="Деривация"
+                       Style="{StaticResource LabelStyle}"
+                       FontAttributes="Bold"/>
+                
+                <Label Grid.Row="1"
+                       Grid.Column="0"
+                       Text="- длина Lд, м"
+                       Style="{StaticResource LabelStyle}"/>
+                <Entry Grid.Row="1"
+                       Grid.Column="1"
+                       x:Name="ld"
+                       TextChanged="OnDoubleEntryTextChanged"
+                       Focused="OnEntryFocused"
+                       Style="{StaticResource EntryStyle}"/>
+                
+                <Label Grid.Row="2"
+                       Grid.Column="0"
+                       Text="- площадь Fд, м²"
+                       Style="{StaticResource LabelStyle}"/>
+                <Entry Grid.Row="2"
+                       Grid.Column="1"
+                       x:Name="fd"
+                       TextChanged="OnDoubleEntryTextChanged"
+                       Focused="OnEntryFocused"
+                       Style="{StaticResource EntryStyle}"/>
+                
+                <Label Grid.Row="3"
+                       Grid.Column="0"
+                       Text="- коэффициент шероховатости n"
+                       Style="{StaticResource LabelStyle}"/>
+                <Entry Grid.Row="3"
+                       Grid.Column="1"
+                       x:Name="nd"
+                       TextChanged="OnDoubleEntryTextChanged"
+                       Focused="OnEntryFocused"
+                       Style="{StaticResource EntryStyle}"/>
+
+                <Label Grid.Row="4"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Text="Резервуар"
+                       Style="{StaticResource LabelStyle}"
+                       FontAttributes="Bold"/>
+
+                <Label Grid.Row="5"
+                       Grid.Column="0"
+                       Text="- площадь Fр, м²"
+                       Style="{StaticResource LabelStyle}"/>
+                <Entry Grid.Row="5"
+                       Grid.Column="1"
+                       x:Name="fr"
+                       TextChanged="OnDoubleEntryTextChanged"
+                       Focused="OnEntryFocused"
+                       Style="{StaticResource EntryStyle}"/>
+                
+                <Label Grid.Row="6"
+                       Grid.Column="0"
+                       Text="- коэффициент дополнительного сопротивления"
+                       Style="{StaticResource LabelStyle}"/>
+                <Entry Grid.Row="6"
+                       Grid.Column="1"
+                       x:Name="dz"
+                       TextChanged="OnDoubleEntryTextChanged"
+                       Focused="OnEntryFocused"
+                       Style="{StaticResource EntryStyle}"/>
+
+                <Label Grid.Row="7"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Text="Параметры расчета"
+                       Style="{StaticResource LabelStyle}"
+                       FontAttributes="Bold"/>
+
+                <Label Grid.Row="8"
+                       Grid.Column="0"
+                       Text="- шаг расчета dt, с"
+                       Style="{StaticResource LabelStyle}"/>
+                <Entry Grid.Row="8"
+                       Grid.Column="1"
+                       x:Name="dt"
+                       TextChanged="OnDoubleEntryTextChanged"
+                       Focused="OnEntryFocused"
+                       Style="{StaticResource EntryStyle}"/>
+                
+                <Label Grid.Row="9"
+                       Grid.Column="0"
+                       Text="- время расчета T, с"
+                       Style="{StaticResource LabelStyle}"/>
+                <Entry Grid.Row="9"
+                       Grid.Column="1"
+                       x:Name="tr"
+                       TextChanged="OnDoubleEntryTextChanged"
+                       Focused="OnEntryFocused"
+                       Style="{StaticResource EntryStyle}"/>
+
+                <Label Grid.Row="10"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Text="Закон изменения расхода"
+                       Style="{StaticResource LabelStyle}"
+                       FontAttributes="Bold"/>
+                <Label Grid.Row="10"
+                       Grid.Column="2"
+                       Text="Экстремумы"
+                       Style="{StaticResource LabelStyle}"
+                       FontAttributes="Bold"/>
+
+                <VerticalStackLayout Grid.Row="11" 
+                                     Grid.Column="0" 
+                                     Grid.ColumnSpan="2" 
+                                     Padding="0" 
+                                     Spacing="10"
+                                     Margin="0,0,20,0">
+                    <ScrollView Orientation="Horizontal">
+                        <CollectionView x:Name="dischargeLow"
+                                        ItemsSource="{Binding DischargesData}"
+                                        ItemsLayout="VerticalList"
+                                        Margin="0,0,0,0">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="100,*" 
+                                          BackgroundColor="{AppThemeBinding Light=White, Dark=#1C1C1E}">
+                                        <Label Text="{Binding RowLabel}" 
+                                               Grid.Column="0" 
+                                               HorizontalTextAlignment="End" 
+                                               VerticalOptions="Center"
+                                               Margin="0,0,10,0"
+                                               Style="{StaticResource TableLabelStyle}"/>
+                                        <StackLayout Grid.Column="1" 
+                                                     Orientation="Horizontal" 
+                                                     Spacing="1"
+                                                     BindableLayout.ItemsSource="{Binding Cells}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Entry Text="{Binding .}"
+                                                           WidthRequest="60"
+                                                           TextChanged="OnDoubleEntryTextChanged" 
+                                                           Focused="OnEntryFocused"
+                                                           Style="{StaticResource TableCellEntryStyle}"/>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </StackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </ScrollView>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Row="11"
+                     Grid.Column="2">
+                    <!-- Устанавливаем цвет фона сетки (например, серый) и расстояние между ячейками через RowSpacing и ColumnSpacing -->
+                    <Grid ColumnDefinitions="*,*,*"
+                          RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="1"
+                          ColumnSpacing="1"
+                          BackgroundColor="#CCCCCC">
+
+                        <!-- Каждую ячейку, включая заголовки, оборачиваем в свой контейнер (например, Grid или Border), чтобы задать белый фон -->
+
+                        <!-- === СТРОКА 0 (ЗАГОЛОВКИ) === -->
+                        <Grid Grid.Row="0" Grid.Column="0" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label Text="Максимум Hд, м" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+
+                        <Grid Grid.Row="0" 
+                              Grid.Column="1" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label Text="Z, м" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+                        <Grid Grid.Row="0" 
+                              Grid.Column="2" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label Text="Hд, м" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+
+                        <!-- === СТРОКА 1 === -->
+                        <Grid Grid.Row="1" 
+                              Grid.Column="0" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label x:Name="Hdm1" 
+                                   Text="-" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+                        <Grid Grid.Row="1" 
+                              Grid.Column="1" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label x:Name="Z1" 
+                                   Text="-" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+                        <Grid Grid.Row="1" 
+                              Grid.Column="2" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label x:Name="Hd1" 
+                                   Text="-" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+
+                        <!-- === СТРОКА 2 === -->
+                        <Grid Grid.Row="2" 
+                              Grid.Column="0" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label x:Name="Hdm2" 
+                                   Text="-" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+                        <Grid Grid.Row="2" 
+                              Grid.Column="1" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label x:Name="Z2" 
+                                   Text="-" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+                        <Grid Grid.Row="2" 
+                              Grid.Column="2" 
+                              Style="{StaticResource GridTableStyle}" >
+                            <Label x:Name="Hd2" 
+                                   Text="-" 
+                                   Style="{StaticResource GridTableLabelStyle}"/>
+                        </Grid>
+
+                    </Grid>
+                </VerticalStackLayout>
+
+
+                <lvc:CartesianChart Grid.Row="0"
+                                    Grid.Column="2"
+                                    Grid.RowSpan="5"
+                                    LegendPosition="Bottom"
+                                    MinimumWidthRequest="600"
+                                    LegendTextSize="12"
+                                    TooltipTextSize="12"
+                                    x:Name="HeadSeries">
+                </lvc:CartesianChart>
+
+                <lvc:CartesianChart Grid.Row="5"
+                                    Grid.Column="2"
+                                    Grid.RowSpan="5"
+                                    LegendPosition="Bottom"
+                                    MinimumWidthRequest="600"
+                                    LegendTextSize="12"
+                                    TooltipTextSize="12"
+                                    x:Name="DischSeries">
+                </lvc:CartesianChart>
+
+            </Grid>
+        </HorizontalStackLayout>
+    </ScrollView>
+
+</ContentPage>
