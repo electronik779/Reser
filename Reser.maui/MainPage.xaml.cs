@@ -16,7 +16,7 @@ namespace Reser.maui
         public ObservableCollection<TableRow> DischargesData { get; set; } = new();
 
         List<string> linesTitles1 = new List<string> { "Уровень в УР, Z", "Давление в деривации, Hд" };
-        List<string> linesTitles2 = new List<string> { "Расход деривации, Qд", "Расход турбинных водоводов, Qт" };
+        List<string> linesTitles2 = new List<string> { "Расход турбинных водоводов, Qт", "Расход деривации, Qд" };
 
         List<string> AxisTitles1 = new List<string> { "Время, с", "м" };
         List<string> AxisTitles2 = new List<string> { "Время, с", "м³/с" };
@@ -125,8 +125,8 @@ namespace Reser.maui
                 dz.Text = b2.ElementAtOrDefault(1) ?? "0";
 
                 var b3 = blocks[2];
-                var timeLow = b3.Take(6).ToList();
-                var dischargeLow = b3.Skip(6).Take(6).ToList();
+                var timeLow = b3.Take(dischargeLowCount).ToList();
+                var dischargeLow = b3.Skip(dischargeLowCount).Take(dischargeLowCount).ToList();
                 for (int i = 0; i < dischargeLowCount; i++)
                 {
                     // Строка 0
