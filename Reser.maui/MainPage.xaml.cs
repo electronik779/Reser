@@ -6,6 +6,7 @@ using LiveChartsCore.SkiaSharpView.Maui;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
@@ -415,12 +416,16 @@ namespace Reser.maui
                 diversionPressureMinimum = resultData[0, 7];
 
                 // Определяем минимальный и максимальный уровень
+                int surgeTankElevationMaximumIndex = 0;
                 for (int i = 0; i < stepsCount; i++)
                 {
                     if (resultData[i, 6] < surgeTankElevationMinimum)
                         surgeTankElevationMinimum = resultData[i, 6];
                     if (resultData[i, 6] > surgeTankElevationMaximum)
+                    {
                         surgeTankElevationMaximum = resultData[i, 6];
+                        surgeTankElevationMaximumIndex = i;
+                    }
                 }
                 Z1.Text = "Макс.: " + Math.Round(surgeTankElevationMaximum, 2);
                 Z2.Text = "Мин.: " + Math.Round(surgeTankElevationMinimum, 2);
@@ -436,144 +441,55 @@ namespace Reser.maui
                 Hd1.Text = "Макс.: " + Math.Round(diversionPressureMaximum, 2);
                 Hd2.Text = "Мин.: " + Math.Round(diversionPressureMinimum, 2);
 
-                double t2 = 0;
+                // Определяем первый и второй максимумы давления
+
+                // Ищем первый максимум
+                double DischargeLowMin = dischargeLow[1, 0];
+                double diversionPressureFirstMaximumTime = 0;
                 for (int i = 0; i < dischargeLowCount; i++)
                 {
-                    if (dischargeLow[1, i] == 0)
+                    if (dischargeLow[1, i] < DischargeLowMin)
                     {
-                        t2 = dischargeLow[0, i];
+                        DischargeLowMin = dischargeLow[1, i];
+                        diversionPressureFirstMaximumTime = dischargeLow[0, i];
+                    }
+                }
+
+                double eps = 0.0001;
+                int diversionPressureFirstMaximumTimeIndex = 0;
+                for (int i = 0; i < stepsCount; i++)
+                {
+                    if (Math.Abs(resultData[i, 0] - diversionPressureFirstMaximumTime) < eps)
+                    {
+                        diversionPressureFirstMaximumTimeIndex = i;
                         break;
                     }
                 }
+                diversionPressureFirstMaximum = resultData[diversionPressureFirstMaximumTimeIndex, 7];
+                //Debug.WriteLine($"diversionPressureFirstMaximumTime = {diversionPressureFirstMaximumTime}, " +
+                //    $"diversionPressureFirstMaximumTimeIndex = {diversionPressureFirstMaximumTimeIndex}");
 
-                // Определяем максимумы давления для верхового УР
-                if ((dischargeLow[1, 0] > 0) && (dischargeLow[1, 0] > dischargeLow[1, 1]))
+                // Ищем второй максимум
+                diversionPressureSecondMaximum = resultData[surgeTankElevationMaximumIndex, 7];
+                if (diversionPressureFirstMaximum < diversionPressureSecondMaximum) 
+                    diversionPressureSecondMaximum = diversionPressureMaximum;
+
+                //Debug.WriteLine($"diversionPressureFirstMaximumTimeIndex= {diversionPressureFirstMaximumTimeIndex}, " +
+                //    $"surgeTankElevationMaximumIndex= {surgeTankElevationMaximumIndex}");
+
+                Hdm1.Text = "Первый: " + Math.Round(diversionPressureFirstMaximum, 2);
+                Hdm2.Text = "Второй: " + Math.Round(diversionPressureSecondMaximum, 2);
+
+                bool optimizationAdditionalResistance = false;
+                for (int i = 0; i < diversionPressureFirstMaximumTimeIndex; i++)
                 {
-                    double[] DYDX = new double[stepsCount];
-
-                    double Min = resultData[0, 7];
-
-                    int SecondPosition = 0;
-                    int Imin = 0;
-                    int t2Pos = (int)(t2 / timeStep);
-
-                    // Ищем первый минимум
-                    for (int i = 1; i < stepsCount; i++)
-                    {
-                        //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
-                        if (resultData[i, 7] < Min)
-                        {
-                            Min = resultData[i, 7];
-                            Imin = i;
-                            //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
-                        }
-                    }
-                    //Debug.WriteLine("{0}, {1}", Imin, stepsCount);
-                    if (Imin == 0) Imin = stepsCount - 1;
-                    diversionPressureSecondMaximum = resultData[Imin, 7];
-
-                    // Ищем второй максимум
-                    for (int i = Imin; i > t2Pos; i--)
-                    {
-                        //Debug.WriteLine("{0}, {1}, {2}, {3}, {4}",
-                        //    i, Second, SecondPosition, Table[i, 7], Table[i - 1, 7]);
-                        if (resultData[i, 7] > diversionPressureSecondMaximum)
-                        {
-                            diversionPressureSecondMaximum = resultData[i, 7];
-                            SecondPosition = i;
-                        }
-                        if (resultData[i - 1, 7] < diversionPressureSecondMaximum) break;
-                    }
-
-                    // Ищем первый максимум
-                    //Debug.WriteLine("{0}", t2Pos);
-                    for (int i = 1; i < t2Pos + 1; i++)
-                    {
-                        DYDX[i] = (resultData[i, 7] - resultData[i - 1, 7]) / timeStep;
-                    }
-
-                    for (int i = 1; i < t2Pos + 2; i++)
-                    {
-                        //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
-                        if (DYDX[i - 1] > 1.5 * DYDX[i])
-                        {
-                            diversionPressureFirstMaximum = resultData[i - 1, 7];
-                        }
-                        if (DYDX[i - 1] > 0 && DYDX[i] < 0)
-                        {
-                            diversionPressureFirstMaximum = resultData[i - 1, 7];
-                            //Debug.WriteLine("break");
-                            break;
-                        }
-                    }
-                    Hdm1.Text = "Первый: " + Math.Round(diversionPressureFirstMaximum, 2);
-                    Hdm2.Text = "Второй: " + Math.Round(diversionPressureSecondMaximum, 2);
+                    if (resultData[i + 1, 7] > resultData[i, 7]) optimizationAdditionalResistance = true;
                 }
-
-                // Определяем максимумы давления низового УР
-                else if ((dischargeLow[1, 0] < 0) && (dischargeLow[1, 0] < dischargeLow[1, 1]))
-                {
-                    double[] DYDX = new double[stepsCount];
-
-                    int SecondPosition = 0;
-
-                    double Max = resultData[0, 7];
-                    int Imax = 0;
-                    int t2Pos = (int)(t2 / timeStep);
-
-                    // Ищем первый полупериод
-                    for (int i = 1; i < stepsCount; i++)
-                    {
-                        //Debug.WriteLine("{0}, {1}, {2}, {3}", i, Imin, Min, Table[i, 7]);
-                        if (resultData[i, 7] > Max)
-                        {
-                            Max = resultData[i, 7];
-                            Imax = i;
-                            //Debug.WriteLine("{0}, {1}, {2}", i, Imin, Min);
-                        }
-                    }
-                    if (Imax == 0) Imax = stepsCount;
-                    diversionPressureSecondMaximum = resultData[Imax, 7];
-                    //Debug.WriteLine("{0}, {1}", Imin, count);
-
-                    // Ищем второй максимум
-                    for (int i = Imax; i > t2Pos; i--)
-                    {
-                        //Debug.WriteLine("{0}, {1}, {2}, {3}, {4}",
-                        //    i, Second, SecondPosition, Table[i, 7], Table[i - 1, 7]);
-                        if (resultData[i, 7] < diversionPressureSecondMaximum)
-                        {
-                            diversionPressureSecondMaximum = resultData[i, 7];
-                            SecondPosition = i;
-                        }
-                        if (resultData[i - 1, 7] > diversionPressureSecondMaximum) break;
-                    }
-
-                    // Ищем первый максимум
-                    //Debug.WriteLine("{0}", t2Pos);
-                    for (int i = 1; i < t2Pos + 1; i++)
-                    {
-                        DYDX[i] = (resultData[i, 7] - resultData[i - 1, 7]) / timeStep;
-                    }
-
-                    for (int i = 1; i < t2Pos + 2; i++)
-                    {
-                        //Debug.WriteLine("{0}, {1}, {2}", i, DYDX[i - 1], DYDX[i]);
-                        if (DYDX[i - 1] < 1.5 * DYDX[i])
-                        {
-                            diversionPressureFirstMaximum = resultData[i - 1, 7];
-                        }
-                        if (DYDX[i - 1] < 0 && DYDX[i] > 0)
-                        {
-                            diversionPressureFirstMaximum = resultData[i - 1, 7];
-                            //Debug.WriteLine("break");
-                            break;
-                        }
-                    }
-                    Hdm1.Text = "Первый: " + Math.Round(diversionPressureFirstMaximum, 2);
-                    Hdm2.Text = "Второй: " + Math.Round(diversionPressureSecondMaximum, 2);
+                if(!optimizationAdditionalResistance)
+                { 
+                    Hdm1.Text = "-"; 
+                    Hdm2.Text = "-"; 
                 }
-                else { Hdm1.Text = "-"; Hdm2.Text = "-"; }
             }
             catch (Exception ex)
             {
